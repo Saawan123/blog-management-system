@@ -13,5 +13,5 @@ export default {
     },
   },
   mode: 'jit',
-  plugins: [require("@tailwindcss/typography")],
+  // plugins: [require("@tailwindcss/typography")],
 };
