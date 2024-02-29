@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deletePost, editPost } from "../Slices/PostSlice";
+import { editPost } from "../Slices/PostSlice";
 import { searchIcon } from "../Icons/icons";
 
 const HomePage = () => {
@@ -9,6 +9,10 @@ const HomePage = () => {
   const posts = useSelector((state: any) => state.posts);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState(posts);
+  const initialPostsToShow = 4;
+  const [currentDisplayLimit, setCurrentDisplayLimit] =
+    useState(initialPostsToShow);
+  const visiblePosts = filteredData.slice(0, currentDisplayLimit);
   const [postsData, setPostsData] = useState(
     posts.map((post: any) => ({
       ...post,
@@ -17,7 +21,6 @@ const HomePage = () => {
     }))
   );
 
-  const [showAll, setShowAll] = useState(false);
   const dispatch = useDispatch();
   const handleSearch = (event: any) => {
     const query = event.target.value;
@@ -33,6 +36,10 @@ const HomePage = () => {
       setFilteredData(filtered);
     }
   };
+  const handleShowMore = () => {
+    setCurrentDisplayLimit((prevLimit) => prevLimit + initialPostsToShow);
+  };
+
   const toggleEdit = (id: any) => {
     const updatedPosts = postsData.map((post: any) => {
       if (post.ID === id) {
@@ -43,8 +50,6 @@ const HomePage = () => {
     setPostsData(updatedPosts);
   };
   useEffect(() => {
-    // This effect ensures filteredData is updated when postsData changes
-    // and applies the current search query to the updated data.
     const updatedFilteredData = postsData.filter(
       (data: any) =>
         data.Title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -52,7 +57,7 @@ const HomePage = () => {
     );
     setFilteredData(updatedFilteredData);
   }, [postsData, searchQuery]);
-  
+
   const handleEditChange = (id: any, field: string, value: string) => {
     const updatedPosts = postsData.map((post: any) => {
       if (post.ID === id) {
@@ -98,7 +103,9 @@ const HomePage = () => {
   }, [posts]);
   return (
     <>
-      {/* <h1>Blog Post Management System</h1> */}
+      <p className="font-bold text-6xl text-white flex flex-wrap justify-center mt-2">
+        Blog Management System
+      </p>
       <div className="header relative m-8">
         <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
           {searchIcon}
@@ -138,10 +145,10 @@ const HomePage = () => {
         </button>
       </div>
       <main className="gap-6 m-8 flex flex-wrap justify-center">
-        {filteredData.map((post: any) => (
+        {visiblePosts.map((post: any) => (
           <div
             key={post.ID}
-            className="shadow mt-8 w-4/5 rounded-xl p-8 transition ease-in-out delay-150 bg-[#5D5FEF]
+            className="shadow  w-4/5 rounded-xl p-8 transition ease-in-out delay-150 bg-[#5D5FEF]
       hover:-translate-y-1 hover:scale-110 hover:bg-[#5D5FEF] duration-300 spin 1s cursor-auto"
           >
             {post.isEditing ? (
@@ -197,78 +204,34 @@ const HomePage = () => {
                     </section>
                   ))}
                 </div>
-                <button
-                  className="text-black  bg-white w-full hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
+                <div className="flex flex-wrap gap-4 mt-6">
+                  <button
+                    className="text-black  bg-white w-full hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
             font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
             dark:focus:ring-white"
-                  onClick={() => toggleEdit(post.ID)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="text-black  bg-white  w-full hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
+                    onClick={() => toggleEdit(post.ID)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-black  bg-white  w-full hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
             font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
             dark:focus:ring-white"
-                  onClick={() => handleDelete(post.ID)}
-                >
-                  Delete Blog
-                </button>
+                    onClick={() => handleDelete(post.ID)}
+                  >
+                    Delete Blog
+                  </button>
+                </div>
               </div>
             )}
           </div>
         ))}
       </main>
-      {/* <main className="gap-6 m-8 flex flex-wrap justify-center">
-        {displayedPosts.map((data: any, index: number) => (
-          <div
-            key={data.ID || index}
-            className="shadow mt-8 w-4/5 rounded-xl p-8 transition ease-in-out delay-150 bg-[#5D5FEF]
-             hover:-translate-y-1 hover:scale-110 hover:bg-[#5D5FEF] duration-300 spin 1s cursor-auto"
-          >
-            <p className="text-2xl font-bold  text-white">{data.Author}</p>
-
-            <p className="mt-2 text-white rounded-xl ">{data.Title}</p>
-            <div>
-              {data?.Content?.map((content: any, idx: any) => (
-                <section key={idx} className=" rounded-xl gap-4 ">
-                  <h5>{content.section}</h5>
-                  <p>{content.text}</p>
-                </section>
-              ))}
-            </div>
-            <div className=" mr-20 border-gray-800 border-solid">
-              <p className="text-white font-light ">
-                Date: {new Date(data.Date).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4 mt-6">
-              <button
-                className="text-black  bg-white w-full
-            hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
-            font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
-            dark:focus:ring-white"
-                onClick={() => navigate(`/edit/post/${data.ID}`)}
-              >
-                Edit Blog
-              </button>
-              <button
-                className="text-black  bg-white  w-full
-                 hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
-                 font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
-                 dark:focus:ring-white"
-                onClick={() => handleDelete(data.ID)}
-              >
-                Delete Blog
-              </button>
-            </div>
-          </div>
-        ))}
-      </main> */}
-      {!showAll && (
-        <div className="pagination-controls gap-6 flex justify-center">
+      {currentDisplayLimit < filteredData.length && (
+        <div className="show-more-btn flex justify-center m-4">
           <button
-            className="text-black bg-white hover:bg-white focus:ring-4 focus:outline-none focus:ring-white font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white dark:focus:ring-white"
-            onClick={() => setShowAll(true)}
+            onClick={handleShowMore}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors duration-300"
           >
             Show More
           </button>
