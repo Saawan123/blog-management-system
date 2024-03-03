@@ -16,7 +16,6 @@ export const PostSlice = createSlice({
           existingPost.Title = title;
           existingPost.Content = content.split("\n").map((text:any, index:number) => ({ section: `Section ${index + 1}`, text }));
           existingPost.Author = author;
-          existingPost.Date = date;
         }
   },
 

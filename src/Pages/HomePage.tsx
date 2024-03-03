@@ -3,18 +3,22 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { editPost } from "../Slices/PostSlice";
 import { searchIcon } from "../Icons/icons";
+import Comments from "../Components/Comments";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const posts = useSelector((state: any) => state.posts);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState(posts);
+  const [activeReplyForm, setActiveReplyForm] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  
   const initialPostsToShow = 4;
   const [currentDisplayLimit, setCurrentDisplayLimit] =
     useState(initialPostsToShow);
   const visiblePosts = filteredData.slice(0, currentDisplayLimit);
   const [postsData, setPostsData] = useState(
-    posts.map((post: any) => ({
+    posts?.map((post: any) => ({
       ...post,
       isEditing: false,
       editData: { ...post },
@@ -41,7 +45,7 @@ const HomePage = () => {
   };
 
   const toggleEdit = (id: any) => {
-    const updatedPosts = postsData.map((post: any) => {
+    const updatedPosts = postsData?.map((post: any) => {
       if (post.ID === id) {
         return { ...post, isEditing: !post.isEditing };
       }
@@ -59,7 +63,7 @@ const HomePage = () => {
   }, [postsData, searchQuery]);
 
   const handleEditChange = (id: any, field: string, value: string) => {
-    const updatedPosts = postsData.map((post: any) => {
+    const updatedPosts = postsData?.map((post: any) => {
       if (post.ID === id) {
         return { ...post, editData: { ...post.editData, [field]: value } };
       }
@@ -79,7 +83,7 @@ const HomePage = () => {
     setPostsData(updatedPosts);
   };
   const deleteContentSection = (postId: any, sectionIdx: any) => {
-    const updatedPosts = postsData.map((post: any) => {
+    const updatedPosts = postsData?.map((post: any) => {
       if (post.ID === postId) {
         let newContent = [...post.editData.Content];
         newContent.splice(sectionIdx, 1);
@@ -88,6 +92,62 @@ const HomePage = () => {
       return post;
     });
     setPostsData(updatedPosts);
+  };
+
+  const handleLike = (id: any) => {
+    const updatedPosts = postsData?.map((post: any) => {
+      if (post.ID === id) {
+        return { ...post, Likes: post.Likes + 1 };
+      }
+      return post;
+    });
+    setPostsData(updatedPosts);
+  };
+
+  // Assuming you have a function to find a comment by ID and add a reply to it
+  const addReplyToComment = (postId: any, commentId: any, replyText: any) => {
+    const updatedPosts = postsData?.map((post: any) => {
+      if (post.ID === postId) {
+        const updatedComments = addReplyToCommentHelper(
+          post.comments,
+          commentId,
+          replyText
+        );
+        return { ...post, comments: updatedComments };
+      }
+      return post;
+    });
+
+    setPostsData(updatedPosts);
+  };
+  const generateUniqueId = () =>
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Helper function to recursively find the comment and add a reply
+  const addReplyToCommentHelper = (
+    comments: any,
+    commentId: any,
+    replyText: any
+  ) => {
+    return comments?.map((comment: any) => {
+      if (comment.id === commentId) {
+        const newReply = {
+          id: generateUniqueId(),
+          text: replyText,
+          replies: [],
+        };
+        const updatedReplies = [...comment.replies, newReply];
+        return { ...comment, replies: updatedReplies };
+      } else if (comment.replies) {
+        const updatedReplies = addReplyToCommentHelper(
+          comment.replies,
+          commentId,
+          replyText
+        );
+        return { ...comment, replies: updatedReplies };
+      }
+      return comment;
+    });
   };
 
   const handleDelete = (postId: any) => {
@@ -145,7 +205,7 @@ const HomePage = () => {
         </button>
       </div>
       <main className="gap-6 m-8 flex flex-wrap justify-center">
-        {visiblePosts.map((post: any) => (
+        {visiblePosts?.map((post: any) => (
           <div
             key={post.ID}
             className="shadow  w-4/5 rounded-xl p-8 transition ease-in-out delay-150 bg-[#5D5FEF]
@@ -168,7 +228,7 @@ const HomePage = () => {
                     handleEditChange(post.ID, "Author", e.target.value)
                   }
                 />
-                {post.editData.Content.map((content: any, idx: any) => (
+                {post?.editData?.Content?.map((content: any, idx: any) => (
                   <div key={idx}>
                     <input
                       type="text"
@@ -224,6 +284,28 @@ const HomePage = () => {
                 </div>
               </div>
             )}
+            <button onClick={() => handleLike(post.ID)}>Like</button>
+            <span>{post.Likes} Likes</span>
+
+            <div>
+              <div>
+                {posts?.map((post: any) => (
+                    <div key={post?.ID}>
+                      { console.log("jhsdcjhs",post)}
+                    {/* <h2>{post?.content}</h2> */}
+                    {post.Comments?.map((comment: any) => (
+                      <Comments
+                        key={comment.ID}
+                        comment={comment}
+                        onReply={(commentId: any, replyText: any) =>
+                          addReplyToComment(post.ID, commentId, replyText)
+                        }
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ))}
       </main>
@@ -231,7 +313,7 @@ const HomePage = () => {
         <div className="show-more-btn flex justify-center m-4">
           <button
             onClick={handleShowMore}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors duration-300"
+            className="px-4 py-2 bg-white text-black font-bold rounded hover:bg-white transition-colors duration-300"
           >
             Show More
           </button>
