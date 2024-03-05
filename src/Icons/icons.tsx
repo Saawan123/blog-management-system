@@ -1,13 +1,77 @@
-export const editIcon = [];
+export const editIcon = [
+  <svg
+    viewBox="0 0 24 24"
+    width={60}
+    height={60}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      {" "}
+      <path
+        d="M11 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40974 4.40973 4.7157 4.21799 5.09202C4 5.51985 4 6.0799 4 7.2V16.8C4 17.9201 4 18.4802 4.21799 18.908C4.40973 19.2843 4.71569 19.5903 5.09202 19.782C5.51984 20 6.0799 20 7.2 20H16.8C17.9201 20 18.4802 20 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V12.5M15.5 5.5L18.3284 8.32843M10.7627 10.2373L17.411 3.58902C18.192 2.80797 19.4584 2.80797 20.2394 3.58902C21.0205 4.37007 21.0205 5.6364 20.2394 6.41745L13.3774 13.2794C12.6158 14.0411 12.235 14.4219 11.8012 14.7247C11.4162 14.9936 11.0009 15.2162 10.564 15.3882C10.0717 15.582 9.54378 15.6885 8.48793 15.9016L8 16L8.04745 15.6678C8.21536 14.4925 8.29932 13.9048 8.49029 13.3561C8.65975 12.8692 8.89125 12.4063 9.17906 11.9786C9.50341 11.4966 9.92319 11.0768 10.7627 10.2373Z"
+        stroke="#000000"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>{" "}
+    </g>
+  </svg>,
+];
 
 export const createIcon = [];
 
-export const deleteIcon = [];
+export const deleteIcon = [
+  <svg
+    viewBox="0 0 1024 1024"
+    className="icon"
+    width={60}
+    height={60}
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="#000000"
+  >
+    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+    <g
+      id="SVGRepo_tracerCarrier"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+      <path d="M154 260h568v700H154z" fill="#FF3B30"></path>
+      <path
+        d="M624.428 261.076v485.956c0 57.379-46.737 103.894-104.391 103.894h-362.56v107.246h566.815V261.076h-99.864z"
+        fill="#030504"
+      ></path>
+      <path
+        d="M320.5 870.07c-8.218 0-14.5-6.664-14.5-14.883V438.474c0-8.218 6.282-14.883 14.5-14.883s14.5 6.664 14.5 14.883v416.713c0 8.219-6.282 14.883-14.5 14.883zM543.5 870.07c-8.218 0-14.5-6.664-14.5-14.883V438.474c0-8.218 6.282-14.883 14.5-14.883s14.5 6.664 14.5 14.883v416.713c0 8.219-6.282 14.883-14.5 14.883z"
+        fill="#152B3C"
+      ></path>
+      <path d="M721.185 345.717v-84.641H164.437z" fill="#030504"></path>
+      <path
+        d="M633.596 235.166l-228.054-71.773 31.55-99.3 228.055 71.773z"
+        fill="#FF3B30"
+      ></path>
+      <path
+        d="M847.401 324.783c-2.223 0-4.475-0.333-6.706-1.034L185.038 117.401c-11.765-3.703-18.298-16.239-14.592-27.996 3.706-11.766 16.241-18.288 27.993-14.595l655.656 206.346c11.766 3.703 18.298 16.239 14.592 27.996-2.995 9.531-11.795 15.631-21.286 15.631z"
+        fill="#FF3B30"
+      ></path>
+    </g>
+  </svg>,
+];
 
 export const likeRedIcon = [
   <svg
     viewBox="0 0 1024 1024"
     className="icon"
+    width={50}
+    height={50}
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     fill="#000000"
@@ -35,6 +99,8 @@ export const likeWhiteIcon = [
   <svg
     viewBox="0 0 1024 1024"
     className="icon"
+    width={50}
+    height={50}
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     fill="#000000"
@@ -62,8 +128,8 @@ export const commentIcon = [
   <svg
     viewBox="0 0 1024 1024"
     fill="#000000"
-    width={20}
-    height={20}
+    width={50}
+    height={50}
     className="icon"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"

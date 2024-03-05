@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { editPost } from "../Slices/PostSlice";
 import {
   commentIcon,
+  deleteIcon,
+  editIcon,
   likeRedIcon,
   likeWhiteIcon,
   searchIcon,
@@ -17,8 +19,8 @@ const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState(posts);
   const [showModal, setShowModal] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const initialPostsToShow = 4;
+  const [showComments, setShowComments]: any = useState({});
+  const initialPostsToShow = 2;
   const [currentDisplayLimit, setCurrentDisplayLimit] =
     useState(initialPostsToShow);
   const visiblePosts = filteredData.slice(0, currentDisplayLimit);
@@ -30,7 +32,8 @@ const HomePage = () => {
       liked: false,
     }))
   );
-
+  const generateUniqueId = () =>
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const dispatch = useDispatch();
   const handleSearch = (event: any) => {
     const query = event.target.value;
@@ -49,9 +52,13 @@ const HomePage = () => {
   const handleShowMore = () => {
     setCurrentDisplayLimit((prevLimit) => prevLimit + initialPostsToShow);
   };
-  const toggleComments = () => {
-    setShowComments(!showComments);
+  const toggleComments = (postId: any) => {
+    setShowComments((prevShowComments: any) => ({
+      ...prevShowComments,
+      [postId]: !prevShowComments[postId],
+    }));
   };
+
   const toggleEdit = (id: any) => {
     const updatedPosts = postsData?.map((post: any) => {
       if (post.ID === id) {
@@ -83,7 +90,7 @@ const HomePage = () => {
   const saveEdit = (id: any) => {
     const updatedPosts = postsData.map((post: { ID: any; editData: any }) => {
       if (post.ID === id) {
-        dispatch(editPost({ ...post.editData })); // Dispatch update action
+        dispatch(editPost({ ...post.editData }));
         return { ...post, isEditing: false, ...post.editData };
       }
       return post;
@@ -92,10 +99,9 @@ const HomePage = () => {
   };
 
   const addNewSection = (postId: any) => {
-    const newSection = { section: "", text: "" }; // Adjust according to your data structure
+    const newSection = { section: "", text: "" };
     const updatedPosts = postsData.map((post: any) => {
       if (post.ID === postId) {
-        // Assume you have `editingPostId` state to track which post is being edited
         return {
           ...post,
           editData: {
@@ -121,22 +127,13 @@ const HomePage = () => {
     setPostsData(updatedPosts);
   };
 
-  // const handleLike = (id: any) => {
-  //   const updatedPosts = postsData?.map((post: any) => {
-  //     if (post.ID === id) {
-  //       return { ...post, Likes: post.Likes + 1 ? post.Likes + 1 : 0 };
-  //     }
-  //     return post;
-  //   });
-  //   setPostsData(updatedPosts);
-  // };
   const handleLike = (id: any) => {
     const updatedPosts = postsData.map((post: any) => {
       if (post.ID === id) {
         if (post.liked) {
-          return { ...post, Likes: post.Likes - 1, liked: false }; // If already liked, decrement likes and set liked to false
+          return { ...post, Likes: post.Likes - 1, liked: false };
         } else {
-          return { ...post, Likes: post.Likes + 1, liked: true }; // If not liked, increment likes and set liked to true
+          return { ...post, Likes: post.Likes + 1, liked: true };
         }
       }
       return post;
@@ -144,7 +141,6 @@ const HomePage = () => {
     setPostsData(updatedPosts);
   };
 
-  // Assuming you have a function to find a comment by ID and add a reply to it
   const addReplyToComment = (postId: any, commentId: any, replyText: any) => {
     const updatedPosts = postsData?.map((post: any) => {
       if (post.ID === postId) {
@@ -160,10 +156,7 @@ const HomePage = () => {
 
     setPostsData(updatedPosts);
   };
-  const generateUniqueId = () =>
-    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-  // Helper function to recursively find the comment and add a reply
   const addReplyToCommentHelper = (
     comments: any,
     commentId: any,
@@ -216,7 +209,6 @@ const HomePage = () => {
           title1={"Are You Sure You Want To Delete Blog?"}
           title2="Confirm"
           cancelBtn="Cancel"
-          // Add any other props that are required by ModalShow
         />
       )}
       <p className="font-bold text-6xl text-white flex flex-wrap justify-center mt-2">
@@ -260,154 +252,18 @@ const HomePage = () => {
           Add New Blog
         </button>
       </div>
-      {/* <main className="gap-6 m-8 flex flex-wrap justify-center">
-        {visiblePosts?.map((post: any) => (
-          <div
-            key={post.ID}
-            className="shadow  w-4/5 rounded-xl p-8 transition ease-in-out delay-150 bg-[#5D5FEF]
-      hover:-translate-y-1 hover:scale-110 hover:bg-[#5D5FEF] duration-300 spin 1s cursor-auto"
-          >
-            {post.isEditing ? (
-              // Edit mode
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  value={post.editData.Title}
-                  onChange={(e) =>
-                    handleEditChange(post.ID, "Title", e.target.value)
-                  }
-                  className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Title"
-                />
-                <input
-                  type="text"
-                  value={post.editData.Author}
-                  onChange={(e) =>
-                    handleEditChange(post.ID, "Author", e.target.value)
-                  }
-                  className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Author"
-                />
-                {post?.editData?.Content?.map((content: any, idx: any) => (
-                  <div key={idx} className="space-y-2">
-                    <input
-                      type="text"
-                      value={content.section}
-                      onChange={(e) =>
-                        handleEditChange(post.ID, "section", e.target.value)
-                      }
-                      className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Section Title"
-                    />
-                    <textarea
-                      value={content.text}
-                      onChange={(e) =>
-                        handleEditChange(post.ID, "text", e.target.value)
-                      }
-                      className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Content"
-                      rows={4}
-                    />
-                    <button
-                      onClick={() => deleteContentSection(post.ID, idx)}
-                      className="px-4 py-2 bg-red-500 text-white font-medium rounded hover:bg-red-600 transition-colors duration-300"
-                    >
-                      Delete Section
-                    </button>
-                  </div>
-                ))}
-                <button
-                  onClick={() => addNewSection(post.ID)}
-                  className="px-4 py-2 bg-green-500 text-white font-medium rounded hover:bg-green-600 transition-colors duration-300"
-                >
-                  Add New Section
-                </button>
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => saveEdit(post.ID)}
-                    className="px-4 py-2 bg-green-500 text-white font-medium rounded hover:bg-green-600 transition-colors duration-300"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => toggleEdit(post.ID)}
-                    className="px-4 py-2 bg-gray-500 text-white font-medium rounded hover:bg-gray-600 transition-colors duration-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              // Display mode
-              <div>
-                <p className="mt-2 text-white rounded-xl ">{post.Author}</p>
-                <h2 className="text-2xl font-bold  text-white">{post.Title}</h2>
-                <div>
-                  {post.Content.map((content: any, idx: any) => (
-                    <section key={idx} className=" rounded-xl gap-4 ">
-                      <h5>{content.section}</h5>
-                      <p>{content.text}</p>
-                    </section>
-                  ))}
-                </div>
-                <div className="flex flex-wrap gap-4 mt-6">
-                  <button
-                    className="text-black  bg-white w-full hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
-            font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
-            dark:focus:ring-white"
-                    onClick={() => toggleEdit(post.ID)}
-                  >
-                    Edit
-                  </button>
 
-                  <button
-                    className="text-black  bg-white  w-full hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
-            font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
-            dark:focus:ring-white"
-                    onClick={() => setShowModal(true)}
-                  >
-                    Delete Blog
-                  </button>
-                </div>
-              </div>
-            )}
-            <button onClick={() => handleLike(post.ID)}>
-              <div className="flex">
-                {post.liked ? likeRedIcon : likeWhiteIcon} {post.Likes} Likes
-              </div>
-            </button>
-            <div onClick={toggleComments}>{commentIcon}</div>
-            {showComments && (
-              <div>
-                {posts?.map((post: any) => (
-                  <div key={post?.ID}>
-                    {post.Comments?.map((comment: any) => (
-                      <Comments
-                        key={comment.ID}
-                        comment={comment}
-                        onReply={(commentId: any, replyText: any) =>
-                          addReplyToComment(post.ID, commentId, replyText)
-                        }
-                      />
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </main> */}
       <main className="gap-6 m-8 flex flex-wrap justify-center">
         {visiblePosts?.map((post: any) => (
           <div
             key={post.ID}
-            className="shadow-lg w-full max-w-md mx-auto rounded-lg overflow-hidden m-4 bg-white transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105 duration-300"
+            className="shadow-lg w-full max-w-md mx-auto rounded-lg overflow-hidden m-4 bg-white "
           >
             {post.isEditing ? (
               <div className="space-y-4 p-4">
                 <input
                   type="text"
-                  value={post.editData.Title}
+                  value={post?.editData?.Title}
                   onChange={(e) =>
                     handleEditChange(post.ID, "Title", e.target.value)
                   }
@@ -423,7 +279,7 @@ const HomePage = () => {
                   className="block w-full p-2 border border-gray-300 rounded-md"
                   placeholder="Author"
                 />
-                {post.editData.Content.map((content: any, idx: any) => (
+                {post?.editData?.Content?.map((content: any, idx: any) => (
                   <div key={idx} className="space-y-2">
                     <input
                       type="text"
@@ -489,34 +345,37 @@ const HomePage = () => {
                 <div className="flex justify-between mt-4">
                   <button
                     onClick={() => toggleEdit(post.ID)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                    // className="text-white px-4 py-2 rounded transition duration-300"
                   >
-                    Edit
+                    {editIcon}
                   </button>
                   <button
                     onClick={() => setShowModal(true)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
+                    // className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
                   >
-                    Delete
+                    {deleteIcon}
                   </button>
                 </div>
               </div>
             )}
-            <button
+        
+             <div className="flex justify-between mt-4">
+                 <button
               onClick={() => handleLike(post.ID)}
               className="p-4 flex items-center"
             >
               {post.liked ? likeRedIcon : likeWhiteIcon}
               <span className="ml-2">{post.Likes} Likes</span>
             </button>
-            <div onClick={toggleComments} className="p-4">
+            <div onClick={() => toggleComments(post.ID)} className="p-4">
               {commentIcon}
             </div>
-            {showComments && (
+                </div>
+            {showComments[post?.ID] && (
               <div className="p-4">
                 {posts.map((post: any) => (
-                  <div key={post.ID}>
-                    {post.Comments.map((comment: any) => (
+                  <div className="p-4">
+                    {post?.Comments?.map((comment: any) => (
                       <Comments
                         key={comment.ID}
                         comment={comment}
