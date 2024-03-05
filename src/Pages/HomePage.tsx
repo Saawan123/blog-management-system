@@ -19,6 +19,7 @@ const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState(posts);
   const [showModal, setShowModal] = useState(false);
+  const [postIdToDelete, setPostIdToDelete] = useState(null);
   const [showComments, setShowComments]: any = useState({});
   const initialPostsToShow = 2;
   const [currentDisplayLimit, setCurrentDisplayLimit] =
@@ -186,31 +187,23 @@ const HomePage = () => {
     setShowModal(false);
   };
 
-  const handleDelete = (postId: any) => {
+  const handleDelete = () => {
+    if (postIdToDelete === null) return; // Guard clause if postIdToDelete is null
+
     const updatedPosts = postsData.filter(
-      (post: { ID: any }) => post.ID !== postId
+      (post: any) => post.ID !== postIdToDelete
     );
     console.log("Updated posts data:", updatedPosts);
     setPostsData(updatedPosts);
     setShowModal(false);
+    setPostIdToDelete(null); // Reset postIdToDelete
   };
+
   useEffect(() => {
     setFilteredData(posts);
   }, [posts]);
   return (
     <>
-      {showModal && (
-        <ModalShow
-          handleView={showModal}
-          handleApi={handleDelete}
-          size="sm"
-          handleClose={handleClose}
-          title="Delete Your Blog"
-          title1={"Are You Sure You Want To Delete Blog?"}
-          title2="Confirm"
-          cancelBtn="Cancel"
-        />
-      )}
       <p className="font-bold text-6xl text-white flex flex-wrap justify-center mt-2">
         Blog Management System
       </p>
@@ -350,27 +343,42 @@ const HomePage = () => {
                     {editIcon}
                   </button>
                   <button
-                    onClick={() => setShowModal(true)}
+                    onClick={() => {
+                      setShowModal(true);
+                      setPostIdToDelete(post.ID);
+                    }}
                     // className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
                   >
                     {deleteIcon}
                   </button>
                 </div>
+                {showModal && (
+                  <ModalShow
+                    handleView={showModal}
+                    handleApi={() => handleDelete()}
+                    size="sm"
+                    handleClose={handleClose}
+                    title="Delete Your Blog"
+                    title1={"Are You Sure You Want To Delete Blog?"}
+                    title2="Confirm"
+                    cancelBtn="Cancel"
+                  />
+                )}
               </div>
             )}
-        
-             <div className="flex justify-between mt-4">
-                 <button
-              onClick={() => handleLike(post.ID)}
-              className="p-4 flex items-center"
-            >
-              {post.liked ? likeRedIcon : likeWhiteIcon}
-              <span className="ml-2">{post.Likes} Likes</span>
-            </button>
-            <div onClick={() => toggleComments(post.ID)} className="p-4">
-              {commentIcon}
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => handleLike(post.ID)}
+                className="p-4 flex items-center"
+              >
+                {post.liked ? likeRedIcon : likeWhiteIcon}
+                <span className="ml-2">{post.Likes} Likes</span>
+              </button>
+              <div onClick={() => toggleComments(post.ID)} className="p-4">
+                {commentIcon}
+              </div>
             </div>
-                </div>
             {showComments[post?.ID] && (
               <div className="p-4">
                 {posts.map((post: any) => (
