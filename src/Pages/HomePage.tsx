@@ -12,6 +12,7 @@ import {
 } from "../Icons/icons";
 import Comments from "../Components/Comments";
 import ModalShow from "../Components/ModalShow";
+import LoginPage from "./LoginPage";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState(posts);
   const [showModal, setShowModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState(null);
   const [showComments, setShowComments]: any = useState({});
   const initialPostsToShow = 2;
@@ -54,6 +57,12 @@ const HomePage = () => {
     setCurrentDisplayLimit((prevLimit) => prevLimit + initialPostsToShow);
   };
   const toggleComments = (postId: any) => {
+    if (!isLoggedIn) {
+      alert("Please log in to perform this action.");
+      setShowModal(false);
+      setShowLoginModal(true);
+      return;
+    }
     setShowComments((prevShowComments: any) => ({
       ...prevShowComments,
       [postId]: !prevShowComments[postId],
@@ -61,6 +70,12 @@ const HomePage = () => {
   };
 
   const toggleEdit = (id: any) => {
+    if (!isLoggedIn) {
+      alert("Please log in to perform this action.");
+      setShowModal(false);
+      setShowLoginModal(true);
+      return;
+    }
     const updatedPosts = postsData?.map((post: any) => {
       if (post.ID === id) {
         return { ...post, isEditing: !post.isEditing };
@@ -129,6 +144,12 @@ const HomePage = () => {
   };
 
   const handleLike = (id: any) => {
+    if (!isLoggedIn) {
+      alert("Please log in to perform this action.");
+      setShowModal(false);
+      setShowLoginModal(true);
+      return;
+    }
     const updatedPosts = postsData.map((post: any) => {
       if (post.ID === id) {
         if (post.liked) {
@@ -185,9 +206,11 @@ const HomePage = () => {
   };
   const handleClose = () => {
     setShowModal(false);
+    setShowLoginModal(false);
   };
 
   const handleDelete = () => {
+ 
     if (postIdToDelete === null) return; // Guard clause if postIdToDelete is null
 
     const updatedPosts = postsData.filter(
@@ -199,6 +222,14 @@ const HomePage = () => {
     setPostIdToDelete(null); // Reset postIdToDelete
   };
 
+  const handleLogin = () => {
+    setShowLoginModal(false);
+    setIsLoggedIn(true);
+  };
+  const handleLogout = () => {
+    setIsLoggedIn(false); // Set login state to false
+    // Perform any other logout operations
+  };
   useEffect(() => {
     setFilteredData(posts);
   }, [posts]);
@@ -233,17 +264,56 @@ const HomePage = () => {
         </button>
       </div>
 
-      <div className="addButton m-3">
+      <div className="addButton m-3 flex justify-between">
         <button
           className="text-black bg-white 
-              hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
-              font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
-              dark:focus:ring-white"
+        hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
+        font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
+        dark:focus:ring-white"
           onClick={() => navigate(`/add/post`)}
           style={{ margin: "20px" }}
         >
           Add New Blog
         </button>
+
+        {isLoggedIn ? (
+          <button
+            className="text-black bg-white 
+          hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
+          font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg:white 
+          dark:focus:ring-white"
+            onClick={handleLogout}
+            style={{ margin: "20px" }}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            className="text-black bg-white 
+          hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
+          font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg:white 
+          dark:focus:ring-white"
+            onClick={() => {
+              setShowLoginModal(true);
+            }}
+            style={{ margin: "20px" }}
+          >
+            Login
+          </button>
+        )}
+
+        {showLoginModal && (
+          <ModalShow
+            handleView={showLoginModal}
+            handleApi={handleLogin}
+            size="sm"
+            handleClose={() => setShowLoginModal(false)}
+            title="Login"
+            title1={<LoginPage onLoginSuccess={handleLogin} />}
+            title2="Confirm"
+            cancelBtn="Cancel"
+          />
+        )}
       </div>
 
       <main className="gap-6 m-8 flex flex-wrap justify-center">
@@ -344,6 +414,12 @@ const HomePage = () => {
                   </button>
                   <button
                     onClick={() => {
+                      if (!isLoggedIn) {
+                        alert("Please log in to perform this action.");
+                        setShowModal(false);
+                        setShowLoginModal(true);
+                        return;
+                      }
                       setShowModal(true);
                       setPostIdToDelete(post.ID);
                     }}
