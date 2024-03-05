@@ -1,22 +1,22 @@
-interface Reply {
+export interface CommentReply {
   ID: string;
   Author: string;
   Text: string;
 }
 
-interface Comment {
+export interface Comment {
   ID: string;
   Author: string;
   Text: string;
-  Replies: Reply[];
+  Replies: CommentReply[];
 }
 
-interface ContentSection {
+export interface ContentSection {
   section: string;
   text: string;
 }
 
-export interface cardData {
+export interface CardData {
   ID: string;
   Title: string;
   Author: string;
