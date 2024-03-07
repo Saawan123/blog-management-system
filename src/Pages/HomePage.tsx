@@ -86,7 +86,7 @@ const HomePage = () => {
     setPostsData(updatedPosts);
   };
   useEffect(() => {
-    const updatedFilteredData = postsData.filter(
+    const updatedFilteredData = postsData?.filter(
       (data: any) =>
         data.Title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         data.Author.toLowerCase().includes(searchQuery.toLowerCase())
@@ -94,15 +94,6 @@ const HomePage = () => {
     setFilteredData(updatedFilteredData);
   }, [postsData, searchQuery]);
 
-  // const handleEditChange = (id: any, field: string, value: string) => {
-  //   const updatedPosts = postsData?.map((post: any) => {
-  //     if (post.ID === id) {
-  //       return { ...post, editData: { ...post.editData, [field]: value } };
-  //     }
-  //     return post;
-  //   });
-  //   setPostsData(updatedPosts);
-  // };
   const handleEditChange = (
     postId: string,
     idx: number | null,
@@ -243,7 +234,7 @@ const HomePage = () => {
   const handleDelete = () => {
     if (postIdToDelete === null) return;
 
-    const updatedPosts = postsData.filter(
+    const updatedPosts = postsData?.filter(
       (post: any) => post.ID !== postIdToDelete
     );
     setPostsData(updatedPosts);
@@ -255,11 +246,22 @@ const HomePage = () => {
   const handleLogin = () => {
     setShowLoginModal(false);
     setIsLoggedIn(true);
+    localStorage.setItem("isLoggedIn", "true");
   };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
+    localStorage.removeItem("isLoggedIn");
+    const updatedPosts = postsData?.map((post: any) => {
+      return { ...post, isEditing: false };
+    });
+    setPostsData(updatedPosts);
     ToastifyShow("Logged Out Successfully", "success");
   };
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isLoggedIn");
+    setIsLoggedIn(loggedIn === "true");
+  }, []);
   useEffect(() => {
     setFilteredData(posts);
   }, [posts]);
