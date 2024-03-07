@@ -13,6 +13,7 @@ import {
 import Comments from "../Components/Comments";
 import ModalShow from "../Components/ModalShow";
 import LoginPage from "./LoginPage";
+import ToastifyShow from "../Components/ToastifyShow";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const HomePage = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState(null);
   const [showComments, setShowComments]: any = useState({});
-  const initialPostsToShow = 2;
+  const initialPostsToShow = 4;
   const [currentDisplayLimit, setCurrentDisplayLimit] =
     useState(initialPostsToShow);
   const visiblePosts = filteredData.slice(0, currentDisplayLimit);
@@ -36,8 +37,7 @@ const HomePage = () => {
       liked: false,
     }))
   );
-  const generateUniqueId = () =>
-    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const generateUniqueId = () => `${Date.now()}-${Math.random().toString(36)}`;
   const dispatch = useDispatch();
   const handleSearch = (event: any) => {
     const query = event.target.value;
@@ -57,12 +57,13 @@ const HomePage = () => {
     setCurrentDisplayLimit((prevLimit) => prevLimit + initialPostsToShow);
   };
   const toggleComments = (postId: any) => {
-    if (!isLoggedIn) {
-      alert("Please log in to perform this action.");
-      setShowModal(false);
-      setShowLoginModal(true);
-      return;
-    }
+    // if (!isLoggedIn) {
+    //   ToastifyShow("Please log in to perform this action.", "error");
+
+    //   setShowModal(false);
+    //   setShowLoginModal(true);
+    //   return;
+    // }
     setShowComments((prevShowComments: any) => ({
       ...prevShowComments,
       [postId]: !prevShowComments[postId],
@@ -71,7 +72,7 @@ const HomePage = () => {
 
   const toggleEdit = (id: any) => {
     if (!isLoggedIn) {
-      alert("Please log in to perform this action.");
+      ToastifyShow("Please log in to perform this action.", "error");
       setShowModal(false);
       setShowLoginModal(true);
       return;
@@ -93,10 +94,39 @@ const HomePage = () => {
     setFilteredData(updatedFilteredData);
   }, [postsData, searchQuery]);
 
-  const handleEditChange = (id: any, field: string, value: string) => {
-    const updatedPosts = postsData?.map((post: any) => {
-      if (post.ID === id) {
-        return { ...post, editData: { ...post.editData, [field]: value } };
+  // const handleEditChange = (id: any, field: string, value: string) => {
+  //   const updatedPosts = postsData?.map((post: any) => {
+  //     if (post.ID === id) {
+  //       return { ...post, editData: { ...post.editData, [field]: value } };
+  //     }
+  //     return post;
+  //   });
+  //   setPostsData(updatedPosts);
+  // };
+  const handleEditChange = (
+    postId: string,
+    idx: number | null,
+    field: string,
+    value: string
+  ) => {
+    const updatedPosts = postsData.map((post: any) => {
+      if (post.ID === postId) {
+        // Check if idx is null, meaning the update is for fields outside of Content array
+        if (idx === null) {
+          return { ...post, editData: { ...post.editData, [field]: value } };
+        } else {
+          // Handling for Content array updates
+          const newContent = post.editData?.Content
+            ? [...post.editData.Content]
+            : [...post.Content];
+          if (newContent[idx]) {
+            newContent[idx] = { ...newContent[idx], [field]: value };
+          }
+          return {
+            ...post,
+            editData: { ...post.editData, Content: newContent },
+          };
+        }
       }
       return post;
     });
@@ -144,12 +174,13 @@ const HomePage = () => {
   };
 
   const handleLike = (id: any) => {
-    if (!isLoggedIn) {
-      alert("Please log in to perform this action.");
-      setShowModal(false);
-      setShowLoginModal(true);
-      return;
-    }
+    // if (!isLoggedIn) {
+    //   ToastifyShow("Please log in to perform this action.", "error");
+
+    //   setShowModal(false);
+    //   setShowLoginModal(true);
+    //   return;
+    // }
     const updatedPosts = postsData.map((post: any) => {
       if (post.ID === id) {
         if (post.liked) {
@@ -165,7 +196,7 @@ const HomePage = () => {
 
   const addReplyToComment = (postId: any, commentId: any, replyText: any) => {
     const updatedPosts = postsData?.map((post: any) => {
-      if (post.ID === postId) {
+      if (post?.ID === postId) {
         const updatedComments = addReplyToCommentHelper(
           post.comments,
           commentId,
@@ -210,16 +241,15 @@ const HomePage = () => {
   };
 
   const handleDelete = () => {
- 
-    if (postIdToDelete === null) return; // Guard clause if postIdToDelete is null
+    if (postIdToDelete === null) return;
 
     const updatedPosts = postsData.filter(
       (post: any) => post.ID !== postIdToDelete
     );
-    console.log("Updated posts data:", updatedPosts);
     setPostsData(updatedPosts);
     setShowModal(false);
-    setPostIdToDelete(null); // Reset postIdToDelete
+    setPostIdToDelete(null);
+    ToastifyShow("Blog Deleted Successfully", "success");
   };
 
   const handleLogin = () => {
@@ -227,8 +257,8 @@ const HomePage = () => {
     setIsLoggedIn(true);
   };
   const handleLogout = () => {
-    setIsLoggedIn(false); // Set login state to false
-    // Perform any other logout operations
+    setIsLoggedIn(false);
+    ToastifyShow("Logged Out Successfully", "success");
   };
   useEffect(() => {
     setFilteredData(posts);
@@ -270,7 +300,16 @@ const HomePage = () => {
         hover:bg-white focus:ring-4 focus:outline-none focus:ring-white 
         font-medium rounded-lg text-sm px-4 py-2 dark:bg-white dark:hover:bg-white 
         dark:focus:ring-white"
-          onClick={() => navigate(`/add/post`)}
+          onClick={() => {
+            if (!isLoggedIn) {
+              ToastifyShow("Please log in to perform this action.", "error");
+
+              setShowModal(false);
+              setShowLoginModal(true);
+              return;
+            }
+            navigate(`/add/post`);
+          }}
           style={{ margin: "20px" }}
         >
           Add New Blog
@@ -305,30 +344,29 @@ const HomePage = () => {
         {showLoginModal && (
           <ModalShow
             handleView={showLoginModal}
+            className="bg-primary"
             handleApi={handleLogin}
             size="sm"
             handleClose={() => setShowLoginModal(false)}
             title="Login"
             title1={<LoginPage onLoginSuccess={handleLogin} />}
-            title2="Confirm"
-            cancelBtn="Cancel"
           />
         )}
       </div>
 
-      <main className="gap-6 m-8 flex flex-wrap justify-center">
-        {visiblePosts?.map((post: any) => (
+      <main className="gap-6 m-8 justify-center">
+        {visiblePosts?.map((post: any, idx: any) => (
           <div
             key={post.ID}
-            className="shadow-lg w-full max-w-md mx-auto rounded-lg overflow-hidden m-4 bg-white "
+            className="w-3/4 mx-auto rounded-lg overflow-hidden m-4 bg-white "
           >
             {post.isEditing ? (
               <div className="space-y-4 p-4">
                 <input
                   type="text"
                   value={post?.editData?.Title}
-                  onChange={(e) =>
-                    handleEditChange(post.ID, "Title", e.target.value)
+                  onChange={(e: any) =>
+                    handleEditChange(post.ID, null, "Title", e.target.value)
                   }
                   className="block w-full p-2 border border-gray-300 rounded-md"
                   placeholder="Title"
@@ -336,8 +374,8 @@ const HomePage = () => {
                 <input
                   type="text"
                   value={post.editData.Author}
-                  onChange={(e) =>
-                    handleEditChange(post.ID, "Author", e.target.value)
+                  onChange={(e: any) =>
+                    handleEditChange(post.ID, null, "Author", e.target.value)
                   }
                   className="block w-full p-2 border border-gray-300 rounded-md"
                   placeholder="Author"
@@ -345,10 +383,14 @@ const HomePage = () => {
                 {post?.editData?.Content?.map((content: any, idx: any) => (
                   <div key={idx} className="space-y-2">
                     <input
-                      type="text"
-                      value={content.section}
+                      value={content?.section}
                       onChange={(e) =>
-                        handleEditChange(post.ID, "section", e.target.value)
+                        handleEditChange(
+                          post.ID,
+                          idx,
+                          "section",
+                          e.target.value
+                        )
                       }
                       className="block w-full p-2 border border-gray-300 rounded-md"
                       placeholder="Section Title"
@@ -356,7 +398,7 @@ const HomePage = () => {
                     <textarea
                       value={content.text}
                       onChange={(e) =>
-                        handleEditChange(post.ID, "text", e.target.value)
+                        handleEditChange(post.ID, idx, "text", e.target.value)
                       }
                       className="block w-full p-2 border border-gray-300 rounded-md"
                       placeholder="Content"
@@ -406,16 +448,17 @@ const HomePage = () => {
                   </section>
                 ))}
                 <div className="flex justify-between mt-4">
-                  <button
-                    onClick={() => toggleEdit(post.ID)}
-                    // className="text-white px-4 py-2 rounded transition duration-300"
-                  >
+                  <button onClick={() => toggleEdit(post.ID)}>
                     {editIcon}
                   </button>
                   <button
                     onClick={() => {
                       if (!isLoggedIn) {
-                        alert("Please log in to perform this action.");
+                        ToastifyShow(
+                          "Please log in to perform this action.",
+                          "error"
+                        );
+
                         setShowModal(false);
                         setShowLoginModal(true);
                         return;
@@ -423,7 +466,6 @@ const HomePage = () => {
                       setShowModal(true);
                       setPostIdToDelete(post.ID);
                     }}
-                    // className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
                   >
                     {deleteIcon}
                   </button>
@@ -451,7 +493,7 @@ const HomePage = () => {
                 {post.liked ? likeRedIcon : likeWhiteIcon}
                 <span className="ml-2">{post.Likes} Likes</span>
               </button>
-              <div onClick={() => toggleComments(post.ID)} className="p-4">
+              <div onClick={() => toggleComments(post?.ID)} className="p-4">
                 {commentIcon}
               </div>
             </div>

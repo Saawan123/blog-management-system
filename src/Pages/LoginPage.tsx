@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
+import ToastifyShow from '../Components/ToastifyShow';
 
 interface LoginProps {
   onLoginSuccess: () => void; 
 }
 
-const LoginPage: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+const LoginPage= ({ onLoginSuccess }:any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   
   const dummyUsername = 'user';
-  const dummyPassword = 'password';
+  const dummyPassword = '12345';
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e:any) => {
     e.preventDefault();
 
     // Simple authentication logic
     if (username === dummyUsername && password === dummyPassword) {
-      alert('Login Successful!');
+      // alert('Login Successful!');
       onLoginSuccess(); // Trigger login success action
+      ToastifyShow("Login Successfully","success")
     } else {
-      alert('Invalid credentials');
+      ToastifyShow("Invalid Credentials","error")
+
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex justify-center">
       <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg">
         <h3 className="text-2xl font-bold text-center">Login to your account</h3>
         <form onSubmit={handleLogin}>

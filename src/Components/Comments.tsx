@@ -24,13 +24,12 @@ const Comments = ({ comment }: any) => {
       <div className="flex space-x-2">
         <div className="shrink-0">
           <img
-            src="https://via.placeholder.com/40" // Placeholder for user's profile image
+            src="https://via.placeholder.com/40" 
             alt="user profile"
             className="h-10 w-10 rounded-full"
           />
         </div>
         <div className="flex-1">
-          {/* Display commenter's name and comment */}
           <p className="font-semibold text-gray-900">Username</p> {/* Placeholder for commenter's name */}
           <p className="text-gray-800">{comment.Text || comment.text}</p>
           {/* Interactive reply link */}

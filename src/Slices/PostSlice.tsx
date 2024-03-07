@@ -10,12 +10,13 @@ export const PostSlice = createSlice({
     },
 
     editPost: (state, action) => {
-        const { id, title, content, author, date } = action.payload;
+        const { id, title, content, author, } = action.payload;
         const existingPost = state.find(post => post.ID === id);
         if (existingPost) {
           existingPost.Title = title;
           existingPost.Content = content.split("\n").map((text:any, index:number) => ({ section: `Section ${index + 1}`, text }));
           existingPost.Author = author;
+
         }
   },
 
